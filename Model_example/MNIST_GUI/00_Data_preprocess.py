@@ -1,0 +1,45 @@
+"""
+ * Requirements
+
+pip install PyQt5
+pip install opencv-python
+
+https://pytorch.org/
+
+conda install pytorch torchvision torchaudio cudatoolkit=11.0 -c pytorch
+or
+conda install pytorch torchvision torchaudio cpuonly -c pytorch
+
+"""
+
+import cv2
+import numpy as np
+import os
+import torch
+import torchvision.datasets as dsets
+import torchvision.transforms as transforms
+
+
+def download_mnist_dataset(path='../mnist_data'):
+    dsets.MNIST(root=path, train=True, transform=transforms.ToTensor(), download=True)
+    dsets.MNIST(root=path, train=False, transform=transforms.ToTensor(), download=True)
+
+
+def save_mnist_test_images(mnist_path='../mnist_data', save_path='../mnist_data/test_images/'):
+    if not os.path.isdir(save_path):
+        os.mkdir(save_path)
+
+    batch_size = 1
+    test_dataset = dsets.MNIST(root=mnist_path, train=False, transform=transforms.ToTensor(), download=False)
+    test_loader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+
+    for i, (images, labels) in enumerate(test_loader):
+        image = (images.numpy()[0][0]*255).astype(np.uint8)
+        cv2.imwrite(save_path+'image%04d.png' % i, image)
+
+
+if __name__ == '__main__':
+    download_mnist_dataset()
+    print('download 끝')
+    save_mnist_test_images()
+    print('image 저장 끝')
